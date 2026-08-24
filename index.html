@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>루아코치의 종합 다이어트 한계 계산기</title>
+    <title>루아코치의 맞춤형 탄단지 계산기</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         
@@ -23,7 +23,7 @@
             padding: 35px 30px; 
             border-radius: 16px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.05); 
-            max-width: 480px; 
+            max-width: 450px; 
             width: 100%; 
         }
         h2 { 
@@ -37,7 +37,7 @@
         .section-title {
             font-size: 1.05rem;
             color: #638076;
-            margin-top: 20px;
+            margin-top: 25px;
             margin-bottom: 15px;
             font-weight: 700;
             border-bottom: 2px solid #e1e8e5;
@@ -71,12 +71,17 @@
             margin-bottom: 12px;
             font-size: 0.95rem;
         }
+        .radio-title {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+        }
         .radio-item {
             display: flex;
             align-items: center;
             margin-bottom: 6px;
             color: #444;
-            cursor: pointer;
         }
         .radio-item input {
             margin-right: 8px;
@@ -112,50 +117,48 @@
             font-size: 0.95rem;
             color: #444;
         }
-        .comparison-box {
-            margin-top: 20px;
-        }
-        .theory-box {
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 8px;
-            color: #666;
-            text-align: center;
-        }
-        .theory-box span {
-            display: block;
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-top: 5px;
-            color: #888;
-        }
-        .safe-box {
+        .result-row.highlight {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #2c3e50;
             margin-top: 15px;
-            padding: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .macro-box {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        .macro-item {
+            background: #fff;
+            flex: 1;
+            text-align: center;
+            padding: 15px 10px;
+            border-radius: 8px;
+            border: 1px solid #e1e8e5;
+        }
+        .macro-item span {
+            display: block;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .macro-item b {
+            font-size: 1.2rem;
+            color: #638076;
+        }
+        .estimation-box {
+            margin-top: 15px;
+            padding: 12px;
             background-color: #eaf1ee;
             border-radius: 8px;
-            border: 1px solid #c9e0d6;
-            text-align: center;
-        }
-        .safe-box span.kcal {
-            display: block;
-            font-size: 1.6rem;
-            font-weight: 800;
             color: #3b534a;
-            margin-top: 5px;
-        }
-        .coach-tip {
-            margin-top: 20px;
-            padding: 18px;
-            background-color: #fff9e6;
-            border-left: 4px solid #f1c40f;
-            border-radius: 4px;
             font-size: 0.95rem;
-            color: #555;
-            line-height: 1.6;
-        }
-        .coach-tip b {
-            color: #d35400;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.4;
         }
         .note { 
             font-size: 0.8rem; 
@@ -165,11 +168,14 @@
             background-color: #fafafa;
             padding: 15px;
             border-radius: 8px;
-            text-align: left;
         }
         /* 배너 스타일 추가 */
-        .banner-placeholder {
+        .banner-link {
+            text-decoration: none;
+            display: block;
             margin-top: 20px;
+        }
+        .banner-placeholder {
             padding: 15px;
             background-color: #2c3e50;
             color: white;
@@ -177,7 +183,6 @@
             border-radius: 8px;
             font-weight: bold;
             font-size: 0.95rem;
-            cursor: pointer;
             transition: background-color 0.3s;
         }
         .banner-placeholder:hover {
@@ -187,33 +192,45 @@
 </head>
 <body>
     <div class="container">
-        <h2>🔥 루아코치의 종합 다이어트 한계 계산기</h2>
+        <h2>📊 루아코치의 맞춤형 탄단지 계산기</h2>
         
-        <div class="section-title">1. 신체 프로필 입력</div>
+        <div class="section-title">1. 기본 정보</div>
         <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="gender" value="female" checked> 여성</label>
-            <label class="radio-item"><input type="radio" name="gender" value="male"> 남성</label>
+            <span class="radio-title">성별 (지방 섭취량 계산 기준)</span>
+            <label class="radio-item"><input type="radio" name="gender" value="female" checked> 여성 (체중 1kg당 지방 0.9g)</label>
+            <label class="radio-item"><input type="radio" name="gender" value="male"> 남성 (체중 1kg당 지방 0.7g)</label>
         </div>
         
+        <!-- BMR 알림 토글 추가 -->
         <div class="input-group">
-            <label for="age">만 나이 (세)</label>
-            <input type="number" id="age" value="40">
+            <label for="bmr_known_toggle">기초대사량 (BMR)</label>
+            <select id="bmr_known_toggle" onchange="toggleBmrInput()">
+                <option value="auto">모름 (자동 계산)</option>
+                <option value="manual">직접 입력 (인바디 등)</option>
+            </select>
         </div>
-        <div class="input-group">
+
+        <div class="input-group" id="bmr_manual_group" style="display:none; background-color: #f7f9f8; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+            <label for="bmr_manual" style="color: #638076;">내 기초대사량</label>
+            <input type="number" id="bmr_manual" style="width: 50%;">
+        </div>
+        
+        <div class="input-group" id="age_group">
+            <label for="age">만 나이 (세)</label>
+            <input type="number" id="age">
+        </div>
+        <div class="input-group" id="height_group">
             <label for="height">신장 (cm)</label>
-            <input type="number" id="height" value="171">
+            <input type="number" id="height">
         </div>
         <div class="input-group">
             <label for="weight">현재 체중 (kg)</label>
-            <input type="number" id="weight" value="55" step="0.1">
-        </div>
-        <div class="input-group">
-            <label for="bodyfat">체지방률 (%)</label>
-            <input type="number" id="bodyfat" value="22" step="0.1">
+            <input type="number" id="weight" step="0.1">
         </div>
 
-        <div class="section-title">2. 활동량 선택</div>
+        <div class="section-title">2. 활동 및 목표 설정</div>
         <div class="input-group" style="display:block;">
+            <label for="activity" style="width:100%; margin-bottom:8px; display:block;">평소 활동량 (활동대사량 기준)</label>
             <select id="activity" style="width:100%;">
                 <option value="1.2">거의 운동하지 않음 (사무직 등)</option>
                 <option value="1.375">가벼운 활동 (주 1~3회 운동)</option>
@@ -222,117 +239,190 @@
                 <option value="1.9">매우 적극적인 활동 (전문 운동선수, 육체노동)</option>
             </select>
         </div>
+        
+        <div class="radio-group" style="margin-top: 15px;">
+            <span class="radio-title">단백질 섭취 기준</span>
+            <label class="radio-item"><input type="radio" name="protein" value="1.0"> 운동 안함 (체중 1kg당 1.0g)</label>
+            <label class="radio-item"><input type="radio" name="protein" value="1.5"> 주 3회 근력운동 (체중 1kg당 1.5g)</label>
+            <label class="radio-item"><input type="radio" name="protein" value="2.0" checked> 주 4회 이상 고강도/웨이트 (체중 1kg당 2.0g)</label>
+        </div>
 
-        <button onclick="calculateAll()">분석 결과 확인하기</button>
+        <div class="input-group" style="margin-top: 15px;">
+            <label for="goal_weight">목표 체중 (kg)</label>
+            <input type="number" id="goal_weight" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="goal_change">한 달 목표치 (감량/증량 kg)</label>
+            <input type="number" id="goal_change" step="0.1">
+        </div>
+
+        <button onclick="calculateMacros()">결과 확인하기</button>
 
         <div class="result" id="result-box" style="display:none;">
-            <div class="result-row">
-                <span>제지방량 (LBM)</span>
-                <strong id="res-lbm"></strong>
-            </div>
             <div class="result-row">
                 <span>기초대사량 (BMR)</span>
                 <strong id="res-bmr"></strong>
             </div>
-            <div class="result-row" style="border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
-                <span>하루 총 소모 칼로리 (TDEE)</span>
-                <strong id="res-tdee" style="color: #638076;"></strong>
+            <div class="result-row">
+                <span>활동대사량 (TDEE)</span>
+                <strong id="res-tdee"></strong>
             </div>
-
-            <div class="comparison-box">
-                <div class="theory-box">
-                    <div style="font-size: 0.9rem; font-weight: 600;">⚠️ 하루 최대 적자 칼로리 (이론적 한계 범위)</div>
-                    <span id="max-deficit-theory"></span>
-                    <div style="font-size: 0.85rem; margin-top: 5px;">현재 체지방량: <b id="fat-mass-theory"></b>kg 기준</div>
-                </div>
-
-                <div class="safe-box">
-                    <div style="font-size: 1.05rem; font-weight: 700; color: #2c3e50;">✅ 루아코치 권장 안전 결손 칼로리</div>
-                    <div style="font-size: 0.85rem; margin-top: 5px; color: #666;">수분 손실 및 대사 적응을 고려한 실무 마지노선</div>
-                    <span id="max-deficit-safe" class="kcal"></span>
-                    <!-- 추가된 한 달 예상 감량치 -->
-                    <div style="font-size: 0.9rem; margin-top: 10px; color: #3b534a;">
-                        하루 활동 칼로리에서 이 칼로리 제한 시<br>한 달에 <b>약 <span id="safe-monthly-loss"></span>kg</b> 감소 예정
-                    </div>
-                </div>
-            </div>
-
-            <div class="coach-tip">
-                💡 <b>루아코치의 다이어트 솔루션</b><br><br>
-                건강한 체형 변화를 위해서는 무작정 굶는 것이 아니라, <b>'식단으로 줄이는 칼로리'를 하루 총 소모 칼로리(TDEE)의 20% 이내인 <span id="diet-limit" style="font-weight:bold; font-size:1.1rem; text-decoration:underline;"></span></b>로 제한해야 합니다.<br><br>
-                그 이상의 칼로리 결손이 필요하다면, 반드시 <b>활동량(운동)을 늘려서</b> 나머지를 채워주세요!
+            <div class="result-row highlight">
+                <span>하루 목표 칼로리 섭취량</span>
+                <strong id="res-target-cal" style="color: #638076;"></strong>
             </div>
             
-            <div class="note">
-                <b>* 대사량 계산 근거</b><br>
-                일반적인 통계 기반의 미플린(Mifflin) 공식과 근육량(제지방량) 기반의 캐치-맥아들(Katch-McArdle) 공식을 모두 계산하여 대사량의 오차 범위를 나타냈습니다.<br><br>
-                <b>* 체지방 연소 한계 근거</b><br>
-                - 논문(Alpert, 2005) 기준 체지방 1kg당 평균 249 ± 25 kJ (약 53.5 ~ 65.5 kcal) 에너지 동원 가능.<br>
-                - 루아코치 권장 수치(48.5 kcal/kg)는 이 이론적 최대치를 실제 다이어트 현장에 맞춰 보수적으로 하향 조정한 기준입니다.
+            <div class="macro-box">
+                <div class="macro-item">
+                    <span>탄수화물</span>
+                    <b id="res-carb"></b>g
+                </div>
+                <div class="macro-item">
+                    <span>단백질</span>
+                    <b id="res-protein"></b>g
+                </div>
+                <div class="macro-item">
+                    <span>지방</span>
+                    <b id="res-fat"></b>g
+                </div>
             </div>
 
-            <!-- 하단 임시 배너 영역 -->
-            <div class="banner-placeholder">
-                [배너 영역] 여기에 들어갈 문구와 링크를 알려주세요!
+            <div class="estimation-box" id="res-estimation">
+                <!-- 예상 기간 텍스트 출력 -->
             </div>
         </div>
+
+        <div class="note">
+            <b>* 계산 근거</b><br>
+            - 기초대사량: 직접 입력하거나 Mifflin-St Jeor 공식 적용<br>
+            - 목표 칼로리: 체중 1kg 변화에 필요한 에너지를 약 7,700kcal로 산정하여 증/감량에 따른 일일 칼로리 가감<br>
+            - 탄수화물: 목표 칼로리에서 단백질과 지방 열량을 제외한 나머지 잔여 칼로리로 자동 배정
+        </div>
+
+        <!-- 하단 배너 추가 -->
+        <a href="https://luamindnbody-dev.github.io/dietfatcalculator/" target="_blank" class="banner-link">
+            <div class="banner-placeholder">
+                👉 체지방률별 근손실 없는 안전 감량구간 확인하기
+            </div>
+        </a>
     </div>
 
     <script>
-        function calculateAll() {
-            const age = parseFloat(document.getElementById('age').value);
-            const height = parseFloat(document.getElementById('height').value);
-            const weight = parseFloat(document.getElementById('weight').value);
-            const bodyfat = parseFloat(document.getElementById('bodyfat').value);
-            const activity = parseFloat(document.getElementById('activity').value);
-            const gender = document.querySelector('input[name="gender"]:checked').value;
+        function toggleBmrInput() {
+            const toggle = document.getElementById('bmr_known_toggle').value;
+            if(toggle === 'manual') {
+                document.getElementById('bmr_manual_group').style.display = 'flex';
+                document.getElementById('age_group').style.display = 'none';
+                document.getElementById('height_group').style.display = 'none';
+            } else {
+                document.getElementById('bmr_manual_group').style.display = 'none';
+                document.getElementById('age_group').style.display = 'flex';
+                document.getElementById('height_group').style.display = 'flex';
+            }
+        }
 
-            if(isNaN(age) || isNaN(height) || isNaN(weight) || isNaN(bodyfat)) {
-                alert("프로필 및 신체 정보를 모두 정확히 입력해주세요.");
+        function calculateMacros() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const goalWeight = parseFloat(document.getElementById('goal_weight').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goalChange = Math.abs(parseFloat(document.getElementById('goal_change').value) || 0); 
+            
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const proteinMultiplier = parseFloat(document.querySelector('input[name="protein"]:checked').value);
+            const bmrToggle = document.getElementById('bmr_known_toggle').value;
+
+            // 필수값 확인 (현재 체중, 목표 체중)
+            if(isNaN(weight) || isNaN(goalWeight)) {
+                alert("현재 체중과 목표 체중을 모두 정확히 입력해주세요.");
                 return;
             }
 
-            const fatMass = weight * (bodyfat / 100);
-            const leanBodyMass = weight - fatMass;
+            let bmr = 0;
 
-            let bmrMifflin = (10 * weight) + (6.25 * height) - (5 * age);
-            if(gender === 'male') {
-                bmrMifflin += 5;
+            // 1. 기초대사량 결정 (직접 입력 vs 자동 계산)
+            if (bmrToggle === 'manual') {
+                bmr = parseFloat(document.getElementById('bmr_manual').value);
+                if (isNaN(bmr) || bmr <= 0) {
+                    alert("알고 계신 기초대사량(BMR) 수치를 정확히 입력해주세요.");
+                    return;
+                }
             } else {
-                bmrMifflin -= 161;
+                const age = parseFloat(document.getElementById('age').value);
+                const height = parseFloat(document.getElementById('height').value);
+                if(isNaN(age) || isNaN(height)) {
+                    alert("나이와 신장을 정확히 입력해주세요.");
+                    return;
+                }
+                
+                // Mifflin-St Jeor 공식
+                bmr = (10 * weight) + (6.25 * height) - (5 * age);
+                if(gender === 'male') {
+                    bmr += 5;
+                } else {
+                    bmr -= 161;
+                }
             }
 
-            const bmrKatch = 370 + (21.6 * leanBodyMass);
-            const bmrMin = Math.min(bmrMifflin, bmrKatch);
-            const bmrMax = Math.max(bmrMifflin, bmrKatch);
+            // 2. 활동대사량 계산
+            const tdee = bmr * activity;
 
-            const tdeeMin = bmrMin * activity;
-            const tdeeMax = bmrMax * activity;
-            
-            const theoryDeficitLower = fatMass * 53.5;
-            const theoryDeficitUpper = fatMass * 65.5;
-            
-            const safeDeficit = fatMass * 48.5;
-            // 추가: 안전 결손 칼로리로 30일 유지 시 예상 감량치 (7700kcal = 1kg)
-            const safeMonthlyLoss = (safeDeficit * 30) / 7700;
+            // 3. 증량/감량 판별 및 목표 칼로리 계산
+            let targetCalories = tdee;
+            let estimationText = "";
 
-            const dietLimitMin = tdeeMin * 0.20;
-            const dietLimitMax = tdeeMax * 0.20;
+            if (goalWeight < weight) {
+                // 감량 모드
+                const dailyDeficit = (goalChange * 7700) / 30;
+                targetCalories = tdee - dailyDeficit;
+                
+                if(targetCalories < (bmr * 0.8)) {
+                    alert("주의: 감량 페이스가 너무 빨라 섭취 권장량이 기초대사량보다 지나치게 낮아집니다. 근손실 예방을 위해 한 달 감량 목표를 조금 낮추는 것을 권장합니다.");
+                }
 
-            document.getElementById('res-lbm').innerText = leanBodyMass.toFixed(1) + " kg";
+                if (goalChange > 0) {
+                    const monthsNeeded = (weight - goalWeight) / goalChange;
+                    estimationText = `💡 <b>[감량 모드]</b><br>현재 식단을 유지하시면 목표 체중(${goalWeight}kg)까지<br>약 <b>${monthsNeeded.toFixed(1)}개월</b>이 소요됩니다.`;
+                }
+            } else if (goalWeight > weight) {
+                // 증량 모드
+                const dailySurplus = (goalChange * 7700) / 30;
+                targetCalories = tdee + dailySurplus;
+                
+                if (goalChange > 0) {
+                    const monthsNeeded = (goalWeight - weight) / goalChange;
+                    estimationText = `💡 <b>[증량 모드]</b><br>현재 식단을 유지하시면 목표 체중(${goalWeight}kg)까지<br>약 <b>${monthsNeeded.toFixed(1)}개월</b>이 소요됩니다.`;
+                }
+            } else {
+                // 유지 모드
+                estimationText = "💡 목표 체중이 현재 체중과 같습니다.<br>체중 유지를 위한 식단입니다.";
+            }
+
+            // 4. 단백질 및 지방 계산
+            const proteinGrams = weight * proteinMultiplier;
+            const proteinKcal = proteinGrams * 4;
+
+            const fatMultiplier = (gender === 'female') ? 0.9 : 0.7;
+            const fatGrams = weight * fatMultiplier;
+            const fatKcal = fatGrams * 9;
+
+            // 5. 탄수화물 계산 (나머지 칼로리)
+            let remainingKcal = targetCalories - proteinKcal - fatKcal;
+            let carbGrams = 0;
+            if(remainingKcal > 0) {
+                carbGrams = remainingKcal / 4;
+            }
+
+            // 6. 결과 출력
+            document.getElementById('res-bmr').innerText = Math.round(bmr) + " kcal";
+            document.getElementById('res-tdee').innerText = Math.round(tdee) + " kcal";
+            document.getElementById('res-target-cal').innerText = Math.round(targetCalories) + " kcal";
             
-            document.getElementById('res-bmr').innerText = Math.round(bmrMin) + " ~ " + Math.round(bmrMax) + " kcal";
-            document.getElementById('res-tdee').innerText = Math.round(tdeeMin) + " ~ " + Math.round(tdeeMax) + " kcal";
+            document.getElementById('res-carb').innerText = Math.round(carbGrams);
+            document.getElementById('res-protein').innerText = Math.round(proteinGrams);
+            document.getElementById('res-fat').innerText = Math.round(fatGrams);
             
-            document.getElementById('fat-mass-theory').innerText = fatMass.toFixed(1);
-            
-            document.getElementById('max-deficit-theory').innerText = Math.round(theoryDeficitLower) + " ~ " + Math.round(theoryDeficitUpper) + " kcal";
-            document.getElementById('max-deficit-safe').innerText = Math.round(safeDeficit) + " kcal";
-            // 한 달 감량치 출력
-            document.getElementById('safe-monthly-loss').innerText = safeMonthlyLoss.toFixed(1);
-            
-            document.getElementById('diet-limit').innerText = "약 " + Math.round(dietLimitMin) + " ~ " + Math.round(dietLimitMax) + " kcal";
-            
+            document.getElementById('res-estimation').innerHTML = estimationText;
+
             document.getElementById('result-box').style.display = "block";
         }
     </script>
